@@ -1,0 +1,59 @@
+<!doctype html>
+<html>
+    
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>代理/VPN 检测</title>
+        <meta name="description" content="Live Proxy/VPN Detection Tests">
+        <meta name="author" content="Nikolai Tschacher">
+        <style>body { font-family: Arial, sans-serif; background-color: #f4f4f9; text-align: center; padding: 20px; } h1 { color: #333; } .result { margin-top: 20px; padding: 20px; background-color: #fff; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); } .success { color: green; } .error { color: red; }</style>
+        <script>window.pd_mode = 'visual';
+            let pdsScript = document.createElement("script");
+            pdsScript.setAttribute("src", "https://pd-us-east.incolumitas.com/pd-lib.js");
+            document.head.appendChild(pdsScript);
+
+            async
+            function getResults(pds, timeout) {
+                let url = pds.config.endpoint + '/i?&uuid=' + pds.config.uuid;
+                try {
+                    let response = await fetch(url);
+                    let data = await response.json();
+                    let resultEl = document.getElementById('result');
+                    if (resultEl) {
+                        resultEl.innerText = (data ? .proxy ? .score > 0) ? "您当前正在使用代理上网": "您当前未使用代理上网";
+                        resultEl.className = (data ? .proxy ? .score > 0) ? "result error": "result success";
+                    }
+                } catch(err) {
+                    console.error(err);
+                    let resultEl = document.getElementById('result');
+                    if (resultEl) {
+                        resultEl.innerText = "检测失败，请稍后再试";
+                        resultEl.className = "result error";
+                    }
+                }
+            }
+
+            async
+            function pollResults(pds) {
+                let pollTimeouts = [0, 1, 3, 10].map(timeout = >timeout * 1000);
+                for (let timeout of pollTimeouts) {
+                    await getResults(pds, timeout);
+                }
+            }
+            window.addEventListener('pdStart', (evt) = >{
+                const pds = evt.detail;
+                console.log('pdStart', pds);
+            });
+            window.addEventListener('pdPoll', async(evt) = >{
+                const pds = evt.detail;
+                console.log('pdPoll', pds);
+                pollResults(pds);
+            });</script>
+    </head>
+    
+    <body>
+        <h1>代理/VPN 检测</h1>
+        <div id="result" class="result">检测中，请稍候...</div></body>
+
+</html>
