@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebOS 2.0</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="status-bar">
+        <div class="time">12:30</div>
+        <div class="status-icons">
+            <span>📶</span>
+            <span>🔋</span>
+        </div>
+    </div>
+
+    <div class="home-screen"></div>
+
+    <div class="dock">
+        <div class="dock-icon" onclick="openApp('settings')">⚙️</div>
+        <div class="dock-icon" onclick="openApp('calculator')">🧮</div>
+        <div class="dock-icon" onclick="openApp('camera')">📷</div>
+        <div class="dock-icon" onclick="openApp('browser')">🌐</div>
+    </div>
+
+    <!-- 应用窗口 -->
+    <!-- 原有应用窗口保持不变，增加以下新组件 -->
+
+    <!-- 控制中心 -->
+    <div class="control-center">
+        <div class="cc-header">控制中心</div>
+        <div class="cc-content">
+            <div class="cc-item" onclick="toggleDarkMode()">
+                <span>🌓</span>
+                <span>深色模式</span>
+            </div>
+            <div class="cc-item" onclick="wallpaper.showWallpaperPicker()">
+                <span>🖼️</span>
+                <span>壁纸</span>
+            </div>
+            <div class="cc-item" onclick="showPasswordPrompt()">
+                <span>🔒</span>
+                <span>安全</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 应用详情 -->
+    <div class="app-detail" id="app-detail">
+        <h2 id="detail-title"></h2>
+        <p id="detail-description"></p>
+        <div class="app-detail-actions">
+            <button onclick="installSelectedApp()" id="install-button">安装</button>
+            <button onclick="closeDetail()">关闭</button>
+        </div>
+    </div>
+
+    <!-- 密码输入 -->
+    <div class="password-overlay" id="password-overlay">
+        <div class="password-box">
+            <h3>输入密码</h3>
+            <input type="password" id="password-input">
+            <div class="password-actions">
+                <button onclick="checkPassword()">解锁</button>
+                <button onclick="document.getElementById('password-overlay').style.display='none'">取消</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JS文件 -->
+    <script src="app-manager.js"></script>
+    <script src="control-center.js"></script>
+    <script src="appstore.js"></script>
+    <script src="auth.js"></script>
+    <script src="wallpaper.js"></script>
+    
+    <!-- 主逻辑 -->
+    <script>
+    // 初始化系统
+    document.addEventListener('DOMContentLoaded', () => {
+        appManager.renderHomeScreen();
+        wallpaper.applyWallpaper();
+    });
+
+    // 应用打开/关闭逻辑
+    function openApp(appId) {
+        if(auth.passwordHash && !auth.checkSession()) {
+            showPasswordPrompt();
+            return;
+        }
+        
+        const app = appManager.installedApps.find(a => a.id === appId);
+        if(app.custom) {
+            const iframe = document.createElement('iframe');
+            iframe.srcdoc = app.html;
+            // 创建新窗口逻辑...
+        } else {
+            document.getElementById(`${appId}-app`).style.display = 'flex';
+        }
+    }
+
+    function closeApp(appId) {
+        document.getElementById(`${appId}-app`).style.display = 'none';
+    }
+
+    // 深色模式切换
+    function toggleDarkMode() {
+        const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+        document.documentElement.setAttribute('data-theme', isDark ? 'light' : 'dark');
+        localStorage.setItem('webos-theme', isDark ? 'light' : 'dark');
+    }
+    </script>
+</body>
+</html>
