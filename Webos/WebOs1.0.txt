@@ -1,0 +1,897 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebOS 界面</title>
+    <style>
+        :root {
+            --primary-color: #007aff;
+            --background-color: #f2f2f7;
+            --card-color: #ffffff;
+            --text-color: #1c1c1e;
+            --secondary-text: #8e8e93;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        [data-theme="dark"] {
+            --primary-color: #0a84ff;
+            --background-color: #1c1c1e;
+            --card-color: #2c2c2e;
+            --text-color: #f2f2f7;
+            --secondary-text: #aeaeb2;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        }
+
+        body {
+            background-color: var(--background-color);
+            color: var(--text-color);
+            height: 100vh;
+            overflow: hidden;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .status-bar {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 20px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .dock {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(255, 255, 255, 0.5);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 10px 20px;
+            display: flex;
+            gap: 15px;
+            box-shadow: var(--shadow);
+        }
+
+        .dock-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: var(--primary-color);
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .dock-icon:hover {
+            transform: scale(1.1);
+        }
+
+        .app-window {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80%;
+            max-width: 800px;
+            height: 70%;
+            background-color: var(--card-color);
+            border-radius: 20px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            display: none;
+            flex-direction: column;
+            z-index: 10;
+        }
+
+        .app-header {
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .app-title {
+            font-weight: 600;
+        }
+
+        .app-close {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background-color: #ff3b30;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        .app-content {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .home-screen {
+            padding: 20px;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            height: calc(100vh - 60px);
+            overflow-y: auto;
+        }
+
+        .app-icon {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            cursor: pointer;
+        }
+
+        .app-icon-image {
+            width: 60px;
+            height: 60px;
+            border-radius: 15px;
+            background-color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 28px;
+        }
+
+        .app-icon-name {
+            font-size: 12px;
+            color: var(--text-color);
+            text-align: center;
+        }
+
+        /* 设置应用样式 */
+        .settings-option {
+            padding: 15px;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .settings-option-title {
+            font-weight: 500;
+        }
+
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 28px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: var(--primary-color);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(22px);
+        }
+
+        /* 计算器样式 */
+        .calculator {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            padding: 20px;
+        }
+
+        .calculator-display {
+            grid-column: span 4;
+            height: 60px;
+            background-color: #f5f5f5;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding: 0 15px;
+            font-size: 24px;
+            margin-bottom: 10px;
+            overflow: hidden;
+        }
+
+        .calculator-btn {
+            height: 50px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            cursor: pointer;
+            background-color: #f5f5f5;
+            border: none;
+            outline: none;
+        }
+
+        .calculator-btn.operator {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .calculator-btn.equals {
+            background-color: #ff9500;
+            color: white;
+        }
+
+        /* 浏览器样式 */
+        .browser-url-bar {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .browser-url-input {
+            flex: 1;
+            padding: 10px 15px;
+            border-radius: 20px;
+            border: 1px solid #ccc;
+            outline: none;
+        }
+
+        .browser-go-btn {
+            padding: 10px 15px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+        }
+
+        .browser-content {
+            height: 100%;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .browser-iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        /* 相机样式 */
+        .camera-viewfinder {
+            width: 100%;
+            height: 80%;
+            background-color: #333;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .camera-preview {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: none;
+        }
+
+        .camera-controls {
+            display: flex;
+            justify-content: center;
+        }
+
+        .camera-shutter {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background-color: white;
+            border: 4px solid #ccc;
+            cursor: pointer;
+        }
+
+        /* App Store样式 */
+        .app-store-card {
+            background-color: #f5f5f5;
+            border-radius: 15px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+
+        .app-store-card-title {
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .app-store-card-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+        }
+
+        .app-store-app {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .app-store-app-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 10px;
+            background-color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
+        }
+
+        .app-store-app-name {
+            font-size: 12px;
+            text-align: center;
+        }
+
+        .app-store-get-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 15px;
+            padding: 5px 10px;
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        /* 照片查看器样式 */
+        .photo-gallery {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            padding: 10px;
+        }
+
+        .photo-thumbnail {
+            width: 100%;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .photo-viewer {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+        }
+
+        .photo-viewer img {
+            max-width: 90%;
+            max-height: 90%;
+        }
+
+        .close-viewer {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            color: white;
+            font-size: 30px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="status-bar">
+        <div class="time">12:30</div>
+        <div class="status-icons">
+            <span>📶</span>
+            <span>🔋</span>
+        </div>
+    </div>
+
+    <div class="home-screen">
+        <div class="app-icon" onclick="openApp('settings')">
+            <div class="app-icon-image">⚙️</div>
+            <div class="app-icon-name">设置</div>
+        </div>
+        <div class="app-icon" onclick="openApp('calculator')">
+            <div class="app-icon-image">🧮</div>
+            <div class="app-icon-name">计算器</div>
+        </div>
+        <div class="app-icon" onclick="openApp('camera')">
+            <div class="app-icon-image">📷</div>
+            <div class="app-icon-name">相机</div>
+        </div>
+        <div class="app-icon" onclick="openApp('browser')">
+            <div class="app-icon-image">🌐</div>
+            <div class="app-icon-name">浏览器</div>
+        </div>
+        <div class="app-icon" onclick="openApp('appstore')">
+            <div class="app-icon-image">🛒</div>
+            <div class="app-icon-name">App Store</div>
+        </div>
+        <div class="app-icon" onclick="openApp('photos')">
+            <div class="app-icon-image">🖼️</div>
+            <div class="app-icon-name">照片</div>
+        </div>
+    </div>
+
+    <div class="dock">
+        <div class="dock-icon" onclick="openApp('settings')">⚙️</div>
+        <div class="dock-icon" onclick="openApp('calculator')">🧮</div>
+        <div class="dock-icon" onclick="openApp('camera')">📷</div>
+        <div class="dock-icon" onclick="openApp('browser')">🌐</div>
+    </div>
+
+    <!-- 设置应用 -->
+    <div class="app-window" id="settings-app">
+        <div class="app-header">
+            <div class="app-title">设置</div>
+            <div class="app-close" onclick="closeApp('settings')">×</div>
+        </div>
+        <div class="app-content">
+            <div class="settings-option">
+                <div class="settings-option-title">深色模式</div>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="dark-mode-toggle">
+                    <span class="slider"></span>
+                </label>
+            </div>
+            <div class="settings-option">
+                <div class="settings-option-title">语言</div>
+                <div class="settings-option-value">中文</div>
+            </div>
+            <div class="settings-option">
+                <div class="settings-option-title">关于</div>
+                <div class="settings-option-value">WebOS 1.0</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 计算器应用 -->
+    <div class="app-window" id="calculator-app">
+        <div class="app-header">
+            <div class="app-title">计算器</div>
+            <div class="app-close" onclick="closeApp('calculator')">×</div>
+        </div>
+        <div class="app-content">
+            <div class="calculator">
+                <div class="calculator-display" id="calc-display">0</div>
+                <button class="calculator-btn" onclick="clearDisplay()">C</button>
+                <button class="calculator-btn" onclick="toggleSign()">±</button>
+                <button class="calculator-btn" onclick="percentage()">%</button>
+                <button class="calculator-btn operator" onclick="setOperation('/')">÷</button>
+                <button class="calculator-btn" onclick="appendNumber('7')">7</button>
+                <button class="calculator-btn" onclick="appendNumber('8')">8</button>
+                <button class="calculator-btn" onclick="appendNumber('9')">9</button>
+                <button class="calculator-btn operator" onclick="setOperation('*')">×</button>
+                <button class="calculator-btn" onclick="appendNumber('4')">4</button>
+                <button class="calculator-btn" onclick="appendNumber('5')">5</button>
+                <button class="calculator-btn" onclick="appendNumber('6')">6</button>
+                <button class="calculator-btn operator" onclick="setOperation('-')">-</button>
+                <button class="calculator-btn" onclick="appendNumber('1')">1</button>
+                <button class="calculator-btn" onclick="appendNumber('2')">2</button>
+                <button class="calculator-btn" onclick="appendNumber('3')">3</button>
+                <button class="calculator-btn operator" onclick="setOperation('+')">+</button>
+                <button class="calculator-btn" onclick="appendNumber('0')" style="grid-column: span 2;">0</button>
+                <button class="calculator-btn" onclick="appendDecimal()">.</button>
+                <button class="calculator-btn equals" onclick="calculate()">=</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 相机应用 -->
+    <div class="app-window" id="camera-app">
+        <div class="app-header">
+            <div class="app-title">相机</div>
+            <div class="app-close" onclick="closeApp('camera')">×</div>
+        </div>
+        <div class="app-content">
+            <div class="camera-viewfinder" id="viewfinder">
+                <div id="camera-placeholder">相机预览</div>
+                <video id="camera-preview" class="camera-preview" autoplay playsinline></video>
+                <canvas id="camera-canvas" style="display: none;"></canvas>
+            </div>
+            <div class="camera-controls">
+                <div class="camera-shutter" onclick="takePhoto()"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 浏览器应用 -->
+    <div class="app-window" id="browser-app">
+        <div class="app-header">
+            <div class="app-title">浏览器</div>
+            <div class="app-close" onclick="closeApp('browser')">×</div>
+        </div>
+        <div class="app-content">
+            <div class="browser-url-bar">
+                <input type="text" class="browser-url-input" id="url-input" placeholder="输入网址" value="https://">
+                <button class="browser-go-btn" onclick="navigate()">前往</button>
+            </div>
+            <div class="browser-content">
+                <iframe class="browser-iframe" id="browser-iframe" src="about:blank"></iframe>
+            </div>
+        </div>
+    </div>
+
+    <!-- App Store应用 -->
+    <div class="app-window" id="appstore-app">
+        <div class="app-header">
+            <div class="app-title">App Store</div>
+            <div class="app-close" onclick="closeApp('appstore')">×</div>
+        </div>
+        <div class="app-content">
+            <div class="app-store-card">
+                <div class="app-store-card-title">推荐应用</div>
+                <div class="app-store-card-grid">
+                    <div class="app-store-app">
+                        <div class="app-store-app-icon">📝</div>
+                        <div class="app-store-app-name">笔记</div>
+                        <button class="app-store-get-btn">获取</button>
+                    </div>
+                    <div class="app-store-app">
+                        <div class="app-store-app-icon">🎵</div>
+                        <div class="app-store-app-name">音乐</div>
+                        <button class="app-store-get-btn">获取</button>
+                    </div>
+                    <div class="app-store-app">
+                        <div class="app-store-app-icon">📅</div>
+                        <div class="app-store-app-name">日历</div>
+                        <button class="app-store-get-btn">获取</button>
+                    </div>
+                </div>
+            </div>
+            <div class="app-store-card">
+                <div class="app-store-card-title">热门应用</div>
+                <div class="app-store-card-grid">
+                    <div class="app-store-app">
+                        <div class="app-store-app-icon">📷</div>
+                        <div class="app-store-app-name">照片</div>
+                        <button class="app-store-get-btn">获取</button>
+                    </div>
+                    <div class="app-store-app">
+                        <div class="app-store-app-icon">🗺️</div>
+                        <div class="app-store-app-name">地图</div>
+                        <button class="app-store-get-btn">获取</button>
+                    </div>
+                    <div class="app-store-app">
+                        <div class="app-store-app-icon">⏱️</div>
+                        <div class="app-store-app-name">时钟</div>
+                        <button class="app-store-get-btn">获取</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 照片应用 -->
+    <div class="app-window" id="photos-app">
+        <div class="app-header">
+            <div class="app-title">照片</div>
+            <div class="app-close" onclick="closeApp('photos')">×</div>
+        </div>
+        <div class="app-content">
+            <div class="photo-gallery" id="photo-gallery">
+                <!-- 照片将通过JavaScript动态添加 -->
+            </div>
+        </div>
+    </div>
+
+    <!-- 照片查看器 -->
+    <div class="photo-viewer" id="photo-viewer">
+        <span class="close-viewer" onclick="closePhotoViewer()">×</span>
+        <img id="viewed-photo" src="" alt="照片">
+    </div>
+
+    <script>
+        // 更新当前时间
+        function updateTime() {
+            const now = new Date();
+            const hours = now.getHours().toString().padStart(2, '0');
+            const minutes = now.getMinutes().toString().padStart(2, '0');
+            document.querySelector('.time').textContent = `${hours}:${minutes}`;
+        }
+        
+        setInterval(updateTime, 1000);
+        updateTime();
+
+        // 应用管理
+        function openApp(appName) {
+            document.getElementById(`${appName}-app`).style.display = 'flex';
+            
+            // 如果是相机应用，启动摄像头
+            if (appName === 'camera') {
+                startCamera();
+            }
+            
+            // 如果是照片应用，加载照片
+            if (appName === 'photos') {
+                loadPhotos();
+            }
+        }
+
+        function closeApp(appName) {
+            document.getElementById(`${appName}-app`).style.display = 'none';
+            
+            // 如果是相机应用，关闭摄像头
+            if (appName === 'camera') {
+                stopCamera();
+            }
+        }
+
+        // 计算器功能
+        let currentInput = '0';
+        let previousInput = '';
+        let operation = null;
+        let resetInput = false;
+
+        function updateDisplay() {
+            document.getElementById('calc-display').textContent = currentInput;
+        }
+
+        function clearDisplay() {
+            currentInput = '0';
+            previousInput = '';
+            operation = null;
+            updateDisplay();
+        }
+
+        function appendNumber(number) {
+            if (currentInput === '0' || resetInput) {
+                currentInput = '';
+                resetInput = false;
+            }
+            currentInput += number;
+            updateDisplay();
+        }
+
+        function appendDecimal() {
+            if (resetInput) {
+                currentInput = '0';
+                resetInput = false;
+            }
+            if (!currentInput.includes('.')) {
+                currentInput += '.';
+                updateDisplay();
+            }
+        }
+
+        function toggleSign() {
+            currentInput = (parseFloat(currentInput) * -1).toString();
+            updateDisplay();
+        }
+
+        function percentage() {
+            currentInput = (parseFloat(currentInput) / 100).toString();
+            updateDisplay();
+        }
+
+        function setOperation(op) {
+            if (operation !== null) calculate();
+            previousInput = currentInput;
+            operation = op;
+            resetInput = true;
+        }
+
+        function calculate() {
+            let computation;
+            const prev = parseFloat(previousInput);
+            const current = parseFloat(currentInput);
+            
+            if (isNaN(prev) || isNaN(current)) return;
+            
+            switch (operation) {
+                case '+':
+                    computation = prev + current;
+                    break;
+                case '-':
+                    computation = prev - current;
+                    break;
+                case '*':
+                    computation = prev * current;
+                    break;
+                case '/':
+                    computation = prev / current;
+                    break;
+                default:
+                    return;
+            }
+            
+            currentInput = computation.toString();
+            operation = null;
+            previousInput = '';
+            resetInput = true;
+            updateDisplay();
+        }
+
+        // 浏览器功能
+        function navigate() {
+            const urlInput = document.getElementById('url-input');
+            let url = urlInput.value;
+            
+            if (!url.startsWith('http://') && !url.startsWith('https://')) {
+                url = 'https://' + url;
+                urlInput.value = url;
+            }
+            
+            document.getElementById('browser-iframe').src = url;
+        }
+
+        document.getElementById('url-input').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                navigate();
+            }
+        });
+
+        // 相机功能
+        let stream = null;
+
+        async function startCamera() {
+            try {
+                const video = document.getElementById('camera-preview');
+                const placeholder = document.getElementById('camera-placeholder');
+                
+                stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                video.srcObject = stream;
+                video.style.display = 'block';
+                placeholder.style.display = 'none';
+            } catch (err) {
+                console.error("摄像头访问失败:", err);
+                alert("无法访问摄像头，请确保已授予权限");
+            }
+        }
+
+        function stopCamera() {
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+                const video = document.getElementById('camera-preview');
+                video.srcObject = null;
+                video.style.display = 'none';
+                document.getElementById('camera-placeholder').style.display = 'block';
+                stream = null;
+            }
+        }
+
+        function takePhoto() {
+            const video = document.getElementById('camera-preview');
+            const canvas = document.getElementById('camera-canvas');
+            const context = canvas.getContext('2d');
+            
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+            
+            // 保存照片到本地存储
+            const photoData = canvas.toDataURL('image/png');
+            savePhoto(photoData);
+            
+            alert('照片已保存!');
+        }
+
+        // 照片存储和查看功能
+        function savePhoto(photoData) {
+            let photos = JSON.parse(localStorage.getItem('webos-photos') || '[]');
+            photos.push(photoData);
+            localStorage.setItem('webos-photos', JSON.stringify(photos));
+        }
+
+        function loadPhotos() {
+            const gallery = document.getElementById('photo-gallery');
+            gallery.innerHTML = '';
+            
+            const photos = JSON.parse(localStorage.getItem('webos-photos') || '[]');
+            
+            if (photos.length === 0) {
+                gallery.innerHTML = '<p>没有照片</p>';
+                return;
+            }
+            
+            photos.forEach((photo, index) => {
+                const img = document.createElement('img');
+                img.src = photo;
+                img.className = 'photo-thumbnail';
+                img.onclick = () => viewPhoto(index);
+                gallery.appendChild(img);
+            });
+        }
+
+        function viewPhoto(index) {
+            const photos = JSON.parse(localStorage.getItem('webos-photos') || '[]');
+            if (index >= 0 && index < photos.length) {
+                document.getElementById('viewed-photo').src = photos[index];
+                document.getElementById('photo-viewer').style.display = 'flex';
+            }
+        }
+
+        function closePhotoViewer() {
+            document.getElementById('photo-viewer').style.display = 'none';
+        }
+
+        // 深色模式切换
+        const darkModeToggle = document.getElementById('dark-mode-toggle');
+        
+        // 检查本地存储中的主题设置
+        function setTheme(isDark) {
+            if (isDark) {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                darkModeToggle.checked = true;
+                localStorage.setItem('webos-theme', 'dark');
+            } else {
+                document.documentElement.removeAttribute('data-theme');
+                darkModeToggle.checked = false;
+                localStorage.setItem('webos-theme', 'light');
+            }
+        }
+
+        // 初始化主题
+        const savedTheme = localStorage.getItem('webos-theme');
+        if (savedTheme === 'dark') {
+            setTheme(true);
+        }
+
+        darkModeToggle.addEventListener('change', (e) => {
+            setTheme(e.target.checked);
+        });
+
+        // 初始化照片存储
+        if (!localStorage.getItem('webos-photos')) {
+            localStorage.setItem('webos-photos', JSON.stringify([]));
+        }
+    </script>
+</body>
+</html>
