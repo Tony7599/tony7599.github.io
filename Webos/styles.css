@@ -1,27 +1,50 @@
-/* 新增控制中心样式 */
+/* 控制中心样式 */
 .control-center {
     position: fixed;
     top: 0;
     left: 0;
     right: 0;
+    height: 60vh;
     background: var(--card-color);
+    backdrop-filter: blur(20px);
     border-radius: 0 0 20px 20px;
     box-shadow: var(--shadow);
     transform: translateY(-100%);
-    transition: transform 0.3s;
+    transition: transform 0.3s cubic-bezier(0.2, 0.9, 0.1, 1), opacity 0.3s;
+    opacity: 0;
     z-index: 1000;
-    padding: 20px;
+    padding: 15px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
 }
 
 .cc-header {
-    font-weight: 600;
-    margin-bottom: 15px;
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
 }
 
-.cc-content {
+.cc-time {
+    font-weight: bold;
+}
+
+.cc-title {
+    font-weight: 600;
+    opacity: 0.8;
+}
+
+.cc-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 15px;
+    grid-template-rows: auto auto 1fr;
+    gap: 20px;
+    height: 100%;
+}
+
+.cc-quick-settings {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
 }
 
 .cc-item {
@@ -30,13 +53,94 @@
     align-items: center;
     padding: 10px;
     border-radius: 10px;
-    background: rgba(0,0,0,0.05);
+    background: rgba(var(--primary-color-rgb), 0.1);
     cursor: pointer;
-    transition: transform 0.2s;
+    transition: all 0.2s;
+}
+
+.cc-item.active {
+    background: rgba(var(--primary-color-rgb), 0.3);
 }
 
 .cc-item:hover {
     transform: scale(1.05);
+}
+
+.cc-icon {
+    font-size: 24px;
+    margin-bottom: 5px;
+}
+
+.cc-label {
+    font-size: 12px;
+}
+
+.cc-brightness {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px;
+    background: rgba(0,0,0,0.05);
+    border-radius: 10px;
+}
+
+.cc-slider {
+    flex: 1;
+    height: 4px;
+    border-radius: 2px;
+    background: var(--secondary-text);
+    outline: none;
+    -webkit-appearance: none;
+}
+
+.cc-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--primary-color);
+    cursor: pointer;
+}
+
+.cc-media-control {
+    background: rgba(0,0,0,0.05);
+    border-radius: 10px;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+}
+
+.cc-media-info {
+    margin-bottom: 15px;
+}
+
+.cc-media-artist {
+    font-size: 14px;
+    opacity: 0.8;
+}
+
+.cc-media-title {
+    font-weight: 600;
+    font-size: 16px;
+}
+
+.cc-media-buttons {
+    display: flex;
+    justify-content: space-around;
+}
+
+.cc-media-btn {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    padding: 5px 15px;
+    border-radius: 50%;
+    transition: all 0.2s;
+}
+
+.cc-media-btn:hover {
+    background: rgba(var(--primary-color-rgb), 0.1);
 }
 
 /* 应用详情样式 */
