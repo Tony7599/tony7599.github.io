@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>六年级速率题目生成器（扩展版）</title>
+    <style>
+        body {
+            font-family: 'Microsoft YaHei', sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        .question {
+            font-size: 18px;
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: #f9f9f9;
+            border-left: 4px solid #3498db;
+            line-height: 1.6;
+        }
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        select, input {
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+            font-size: 16px;
+        }
+        .answer {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #e8f8f5;
+            border-left: 4px solid #2ecc71;
+            display: none;
+        }
+        .explanation {
+            margin-top: 10px;
+            font-style: italic;
+            color: #7f8c8d;
+        }
+        .formula {
+            font-weight: bold;
+            color: #e74c3c;
+        }
+        @media (max-width: 600px) {
+            .controls {
+                flex-direction: column;
+            }
+            .control-group {
+                width: 100%;
+                justify-content: space-between;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>六年级速率题目生成器（扩展版）</h1>
+    <div class="container">
+        <div class="controls">
+            <div class="control-group">
+                <label for="difficulty">难度：</label>
+                <select id="difficulty">
+                    <option value="easy">简单</option>
+                    <option value="medium" selected>中等</option>
+                    <option value="hard">困难</option>
+                </select>
+            </div>
+            <div class="control-group">
+                <label for="question-type">题型：</label>
+                <select id="question-type">
+                    <option value="random">随机题型</option>
+                    <option value="basic">基础计算</option>
+                    <option value="meet">相遇问题</option>
+                    <option value="chase">追及问题</option>
+                    <option value="average">平均速度</option>
+                    <option value="round">往返问题</option>
+                    <option value="compare">速度比较</option>
+                </select>
+            </div>
+            <button id="generate-btn">生成新题目</button>
+            <button id="show-answer-btn">显示答案</button>
+        </div>
+        
+        <div class="question" id="question-area">
+            点击"生成新题目"按钮开始
+        </div>
+        
+        <div class="answer" id="answer-area">
+            <div id="answer-text"></div>
+            <div class="explanation" id="explanation"></div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const generateBtn = document.getElementById('generate-btn');
+            const showAnswerBtn = document.getElementById('show-answer-btn');
+            const questionArea = document.getElementById('question-area');
+            const answerArea = document.getElementById('answer-area');
+            const answerText = document.getElementById('answer-text');
+            const explanation = document.getElementById('explanation');
+            const difficultySelect = document.getElementById('difficulty');
+            const questionTypeSelect = document.getElementById('question-type');
+            
+            let currentQuestion = {};
+            
+            generateBtn.addEventListener('click', generateQuestion);
+            showAnswerBtn.addEventListener('click', showAnswer);
+            
+            // 初始生成一个题目
+            generateQuestion();
+            
+            function generateQuestion() {
+                const difficulty = difficultySelect.value;
+                const questionType = questionTypeSelect.value;
+                currentQuestion = createRateQuestion(difficulty, questionType);
+                questionArea.innerHTML = currentQuestion.question;
+                answerText.innerHTML = `答案：${currentQuestion.answer}`;
+                explanation.innerHTML = `解析：${currentQuestion.explanation}`;
+                answerArea.style.display = 'none';
+            }
+            
+            function showAnswer() {
+                answerArea.style.display = 'block';
+            }
+            
+            function createRateQuestion(difficulty, questionType = 'random') {
+                // 根据难度设置数值范围
+                let minSpeed, maxSpeed, minTime, maxTime, minDistance, maxDistance;
+                if (difficulty === 'easy') {
+                    minSpeed = 5;
+                    maxSpeed = 20;
+                    minTime = 1;
+                    maxTime = 5;
+                    minDistance = 10;
+                    maxDistance = 100;
+                } else if (difficulty === 'medium') {
+                    minSpeed = 10;
+                    maxSpeed = 50;
+                    minTime = 1;
+                    maxTime = 10;
+                    minDistance = 20;
+                    maxDistance = 500;
+                } else { // hard
+                    minSpeed = 20;
+                    maxSpeed = 100;
+                    minTime = 1;
+                    maxTime = 12;
+                    minDistance = 50;
+                    maxDistance = 1000;
+                }
+                
+                // 如果选择随机题型，则从所有题型中随机选择
+                const allTypes = ['basic', 'meet', 'chase', 'average', 'round', 'compare'];
+                const selectedType = questionType === 'random' 
+                    ? allTypes[Math.floor(Math.random() * allTypes.length)]
+                    : questionType;
+                
+                let question = {};
+                
+                switch(selectedType) {
+                    case 'basic':
+                        question = generateBasicQuestion(minSpeed, maxSpeed, minTime, maxTime, difficulty);
+                        break;
+                    case 'meet':
+                        question = generateMeetingQuestion(minSpeed, maxSpeed, minDistance, maxDistance, difficulty);
+                        break;
+                    case 'chase':
+                        question = generateChasingQuestion(minSpeed, maxSpeed, minDistance, maxDistance, difficulty);
+                        break;
+                    case 'average':
+                        question = generateAverageSpeedQuestion(minSpeed, maxSpeed, minTime, maxTime, difficulty);
+                        break;
+                    case 'round':
+                        question = generateRoundTripQuestion(minSpeed, maxSpeed, minTime, maxTime, difficulty);
+                        break;
+                    case 'compare':
+                        question = generateCompareSpeedQuestion(minSpeed, maxSpeed, difficulty);
+                        break;
+                }
+                
+                return question;
+            }
+            
+            function generateBasicQuestion(minSpeed, maxSpeed, minTime, maxTime, difficulty) {
+                const types = ['speed', 'time', 'distance'];
+                const type = types[Math.floor(Math.random() * types.length)];
+                
+                const speed = getRandomNumber(minSpeed, maxSpeed, difficulty);
+                const time = getRandomNumber(minTime, maxTime, difficulty);
+                const distance = Math.round(speed * time * 10) / 10; // 保留一位小数
+                
+                let question = {};
+                
+                switch(type) {
+                    case 'speed':
+                        question.question = `小明骑自行车从家到学校用了${time}小时，路程是${distance}千米。小明的骑行速度是多少千米/小时？`;
+                        question.answer = `${speed} 千米/小时`;
+                        question.explanation = `<span class="formula">速度 = 路程 ÷ 时间</span><br>计算：${distance} ÷ ${time} = ${speed} 千米/小时`;
+                        break;
+                    case 'time':
+                        question.question = `一辆汽车以${speed}千米/小时的速度行驶，要行驶${distance}千米需要多少小时？`;
+                        question.answer = `${time} 小时`;
+                        question.explanation = `<span class="formula">时间 = 路程 ÷ 速度</span><br>计算：${distance} ÷ ${speed} = ${time} 小时`;
+                        break;
+                    case 'distance':
+                        question.question = `小红以${speed}千米/小时的速度步行了${time}小时，她走了多少千米？`;
+                        question.answer = `${distance} 千米`;
+                        question.explanation = `<span class="formula">路程 = 速度 × 时间</span><br>计算：${speed} × ${time} = ${distance} 千米`;
+                        break;
+                }
+                
+                return question;
+            }
+            
+            function generateMeetingQuestion(minSpeed, maxSpeed, minDistance, maxDistance, difficulty) {
+                const speedA = getRandomNumber(minSpeed, maxSpeed, difficulty);
+                const speedB = getRandomNumber(minSpeed, maxSpeed, difficulty);
+                const distance = getRandomNumber(minDistance, maxDistance, difficulty);
+                
+                const meetingTime = distance / (speedA + speedB);
+                const distanceA = Math.round(speedA * meetingTime * 10) / 10;
+                const distanceB = Math.round(speedB * meetingTime * 10) / 10;
+                
+                // 随机选择三种相遇问题表述方式之一
+                const variant = Math.floor(Math.random() * 3);
+                let questionText, answerText, explanationText;
+                
+                switch(variant) {
+                    case 0:
+                        questionText = `甲乙两城相距${distance}千米。小明从甲城出发，以${speedA}千米/小时的速度骑自行车前往乙城；同时，小红从乙城出发，以${speedB}千米/小时的速度步行前往甲城。他们几小时后相遇？`;
+                        answerText = `${meetingTime.toFixed(1)} 小时`;
+                        explanationText = `<span class="formula">相遇时间 = 总路程 ÷ (速度1 + 速度2)</span><br>
+                                           计算：${distance} ÷ (${speedA} + ${speedB}) = ${meetingTime.toFixed(1)} 小时`;
+                        break;
+                    case 1:
+                        questionText = `两列火车从相距${distance}千米的两站同时相向开出，一列火车的速度是${speedA}千米/小时，另一列是${speedB}千米/小时。相遇时，较快的火车行驶了多少千米？`;
+                        const fasterSpeed = Math.max(speedA, speedB);
+                        const fasterDistance = fasterSpeed === speedA ? distanceA : distanceB;
+                        answerText = `${fasterDistance} 千米`;
+                        explanationText = `先计算相遇时间：${distance} ÷ (${speedA} + ${speedB}) = ${meetingTime.toFixed(1)} 小时<br>
+                                          较快火车行驶距离：${Math.max(speedA, speedB)} × ${meetingTime.toFixed(1)} = ${fasterDistance} 千米`;
+                        break;
+                    case 2:
+                        questionText = `A、B两人分别以${speedA}千米/小时和${speedB}千米/小时的速度从相距${distance}千米的两地同时出发，相向而行。相遇时，A比B多走了多少千米？`;
+                        const diffDistance = Math.abs(distanceA - distanceB);
+                        answerText = `${diffDistance.toFixed(1)} 千米`;
+                        explanationText = `A行驶距离：${speedA} × (${distance} ÷ (${speedA} + ${speedB})) = ${distanceA} 千米<br>
+                                           B行驶距离：${speedB} × (${distance} ÷ (${speedA} + ${speedB})) = ${distanceB} 千米<br>
+                                           差值：|${distanceA} - ${distanceB}| = ${diffDistance.toFixed(1)} 千米`;
+                        break;
+                }
+                
+                return {
+                    question: questionText,
+                    answer: answerText,
+                    explanation: explanationText
+                };
+            }
+            
+            function generateChasingQuestion(minSpeed, maxSpeed, minDistance, maxDistance, difficulty) {
+                let speedA = getRandomNumber(minSpeed, maxSpeed, difficulty);
+                let speedB = getRandomNumber(minSpeed, maxSpeed, difficulty);
+                
+                // 确保速度不同，否则无法追及
+                while (speedA === speedB) {
+                    speedB = getRandomNumber(minSpeed, maxSpeed, difficulty);
+                }
+                
+                // 确保A比B快或慢，随机决定谁追谁
+                if (Math.random() > 0.5) {
+                    [speedA, speedB] = [speedB, speedA]; // 交换速度
+                }
+                
+                const distance = getRandomNumber(minDistance / 5, maxDistance / 5, difficulty); // 初始距离缩短
+                const relativeSpeed = Math.abs(speedA - speedB);
+                const chaseTime = distance / relativeSpeed;
+                const totalDistance = Math.max(speedA, speedB) * chaseTime;
+                
+                const variant = Math.floor(Math.random() * 2);
+                let questionText, answerText, explanationText;
+                
+                if (variant === 0) {
+                    questionText = `小明和小红在同一地点出发，小明以${speedA}千米/小时的速度向东走，${distance}千米后小红以${speedB}千米/小时的速度也向东走。小红需要多少小时才能追上小明？`;
+                    answerText = `${chaseTime.toFixed(1)} 小时`;
+                    explanationText = `<span class="formula">追及时间 = 初始距离 ÷ (较快速度 - 较慢速度)</span><br>
+                                       计算：${distance} ÷ (${Math.max(speedA, speedB)} - ${Math.min(speedA, speedB)}) = ${chaseTime.toFixed(1)} 小时`;
+                } else {
+                    questionText = `猎豹发现${distance}米外的羚羊后立即以${Math.max(speedA, speedB)}千米/小时的速度追赶，羚羊以${Math.min(speedA, speedB)}千米/小时的速度逃跑。猎豹能追上羚羊吗？如果能，需要多少小时？`;
+                    if (speedA > speedB) {
+                        answerText = `能，需要 ${chaseTime.toFixed(1)} 小时`;
+                        explanationText = `猎豹速度(${speedA} km/h) > 羚羊速度(${speedB} km/h)，可以追上。<br>
+                                          追及时间：${distance/1000} ÷ (${speedA} - ${speedB}) = ${chaseTime.toFixed(1)} 小时`;
+                    } else {
+                        answerText = `不能，因为猎豹速度(${speedA} km/h) ≤ 羚羊速度(${speedB} km/h)`;
+                        explanationText = `只有当追赶者速度大于逃跑者速度时才能追上。`;
+                    }
+                }
+                
+                return {
+                    question: questionText,
+                    answer: answerText,
+                    explanation: explanationText
+                };
+            }
+            
+            function generateAverageSpeedQuestion(minSpeed, maxSpeed, minTime, maxTime, difficulty) {
+                const speed1 = getRandomNumber(minSpeed, maxSpeed, difficulty);
+                const speed2 = getRandomNumber(minSpeed, maxSpeed, difficulty);
+                const time1 = getRandomNumber(minTime, maxTime, difficulty);
+                const time2 = getRandomNumber(minTime, maxTime, difficulty);
+                
+                const distance1 = speed1 * time1;
+                const distance2 = speed2 * time2;
+                const totalDistance = distance1 + distance2;
+                const totalTime = time1 + time2;
+                const averageSpeed = Math.round(totalDistance / totalTime * 10) / 10;
+                
+                const variant = Math.floor(Math.random() * 3);
+                let questionText, answerText, explanationText;
+                
+                switch(variant) {
+                    case 0:
+                        questionText = `一辆汽车前${time1}小时以${speed1}千米/小时的速度行驶，后${time2}小时以${speed2}千米/小时的速度行驶。这辆汽车的平均速度是多少千米/小时？`;
+                        answerText = `${averageSpeed} 千米/小时`;
+                        explanationText = `<span class="formula">平均速度 = 总路程 ÷ 总时间</span><br>
+                                           总路程 = ${speed1} × ${time1} + ${speed2} × ${time2} = ${distance1 + distance2} 千米<br>
+                                           总时间 = ${time1} + ${time2} = ${totalTime} 小时<br>
+                                           平均速度 = ${totalDistance} ÷ ${totalTime} = ${averageSpeed} 千米/小时`;
+                        break;
+                    case 1:
+                        const distance = getRandomNumber(minSpeed * minTime * 2, maxSpeed * maxTime * 2, difficulty);
+                        const speedReturn = getRandomNumber(minSpeed, maxSpeed, difficulty);
+                        const timeGo = distance / speed1;
+                        const timeBack = distance / speedReturn;
+                        const avgSpeedRound = Math.round(2 * distance / (timeGo + timeBack) * 10) / 10;
+                        
+                        questionText = `小明去爬山，上山的速度是${speed1}千米/小时，下山的速度是${speedReturn}千米/小时。山脚到山顶的距离是${distance}千米。小明这次爬山的平均速度是多少千米/小时？`;
+                        answerText = `${avgSpeedRound} 千米/小时`;
+                        explanationText = `<span class="formula">往返平均速度 ≠ (速度1 + 速度2) ÷ 2</span><br>
+                                           正确计算：<span class="formula">平均速度 = 总路程 ÷ 总时间</span><br>
+                                           总路程 = ${distance} × 2 = ${distance * 2} 千米<br>
+                                           总时间 = ${distance} ÷ ${speed1} + ${distance} ÷ ${speedReturn} = ${(timeGo + timeBack).toFixed(1)} 小时<br>
+                                           平均速度 = ${distance * 2} ÷ ${(timeGo + timeBack).toFixed(1)} ≈ ${avgSpeedRound} 千米/小时`;
+                        break;
+                    case 2:
+                        const partDistance = getRandomNumber(minSpeed * minTime, maxSpeed * maxTime, difficulty);
+                        const speedPart1 = getRandomNumber(minSpeed, maxSpeed, difficulty);
+                        const timePart1 = partDistance / speedPart1;
+                        const speedPart2 = getRandomNumber(minSpeed, maxSpeed, difficulty);
+                        const remainingDistance = getRandomNumber(minSpeed * minTime, maxSpeed * maxTime, difficulty);
+                        const timePart2 = remainingDistance / speedPart2;
+                        const avgSpeedComplex = Math.round((partDistance + remainingDistance) / (timePart1 + timePart2) * 10) / 10;
+                        
+                        questionText = `一辆汽车行驶了${partDistance}千米，用了${timePart1.toFixed(1)}小时；然后又行驶了${remainingDistance}千米，用了${timePart2.toFixed(1)}小时。这辆汽车全程的平均速度是多少千米/小时？`;
+                        answerText = `${avgSpeedComplex} 千米/小时`;
+                        explanationText = `<span class="formula">平均速度 = 总路程 ÷ 总时间</span><br>
+                                           总路程 = ${partDistance} + ${remainingDistance} = ${partDistance + remainingDistance} 千米<br>
+                                           总时间 = ${timePart1.toFixed(1)} + ${timePart2.toFixed(1)} = ${(timePart1 + timePart2).toFixed(1)} 小时<br>
+                                           平均速度 = ${partDistance + remainingDistance} ÷ ${(timePart1 + timePart2).toFixed(1)} ≈ ${avgSpeedComplex} 千米/小时`;
+                        break;
+                }
+                
+                return {
+                    question: questionText,
+                    answer: answerText,
+                    explanation: explanationText
+                };
+            }
+            
+            function generateRoundTripQuestion(minSpeed, maxSpeed, minTime, maxTime, difficulty) {
+                const speedGo = getRandomNumber(minSpeed, maxSpeed, difficulty);
+                let speedReturn = getRandomNumber(minSpeed, maxSpeed, difficulty);
+                
+                // 确保往返速度不同
+                while (speedReturn === speedGo) {
+                    speedReturn = getRandomNumber(minSpeed, maxSpeed, difficulty);
+                }
+                
+                const distance = getRandomNumber(minSpeed * minTime, maxSpeed * maxTime, difficulty);
+                const timeGo = distance / speedGo;
+                const timeReturn = distance / speedReturn;
+                const totalTime = timeGo + timeReturn;
+                const avgSpeed = Math.round(2 * distance / totalTime * 10) / 10;
+                
+                const variant = Math.floor(Math.random() * 2);
+                let questionText, answerText, explanationText;
+                
+                if (variant === 0) {
+                    questionText = `小华从家到学校的距离是${distance}千米。他去学校时骑自行车的速度是${speedGo}千米/小时，回家时因为逆风，速度降为${speedReturn}千米/小时。小华往返一次的平均速度是多少千米/小时？`;
+                    answerText = `${avgSpeed} 千米/小时`;
+                    explanationText = `<span class="formula">平均速度 = 总路程 ÷ 总时间</span><br>
+                                       总路程 = ${distance} × 2 = ${distance * 2} 千米<br>
+                                       去学校时间 = ${distance} ÷ ${speedGo} = ${timeGo.toFixed(1)} 小时<br>
+                                       回家时间 = ${distance} ÷ ${speedReturn} = ${timeReturn.toFixed(1)} 小时<br>
+                                       总时间 = ${timeGo.toFixed(1)} + ${timeReturn.toFixed(1)} = ${totalTime.toFixed(1)} 小时<br>
+                                       平均速度 = ${distance * 2} ÷ ${totalTime.toFixed(1)} ≈ ${avgSpeed} 千米/小时<br>
+                                       <span style="color:red">注意：平均速度 ≠ (${speedGo} + ${speedReturn}) ÷ 2 = ${(speedGo + speedReturn)/2}</span>`;
+                } else {
+                    const timeTotal = getRandomNumber(minTime * 2, maxTime * 2, difficulty);
+                    const speedReturnOnly = getRandomNumber(minSpeed, maxSpeed, difficulty);
+                    const distanceOnly = (timeTotal * speedGo * speedReturnOnly) / (speedGo + speedReturnOnly);
+                    
+                    questionText = `爸爸开车去某地，去的速度是${speedGo}千米/小时，返回的速度是${speedReturnOnly}千米/小时，往返共用了${timeTotal}小时。这个地点距离家有多远？`;
+                    answerText = `${Math.round(distanceOnly * 10) / 10} 千米`;
+                    explanationText = `<span class="formula">设距离为D，则 D/${speedGo} + D/${speedReturnOnly} = ${timeTotal}</span><br>
+                                       解方程：D × (1/${speedGo} + 1/${speedReturnOnly}) = ${timeTotal}<br>
+                                       D = ${timeTotal} ÷ (${(1/speedGo + 1/speedReturnOnly).toFixed(4)}) ≈ ${Math.round(distanceOnly * 10) / 10} 千米`;
+                }
+                
+                return {
+                    question: questionText,
+                    answer: answerText,
+                    explanation: explanationText
+                };
+            }
+            
+            function generateCompareSpeedQuestion(minSpeed, maxSpeed, difficulty) {
+                const speed1 = getRandomNumber(minSpeed, maxSpeed, difficulty);
+                const speed2 = getRandomNumber(minSpeed, maxSpeed, difficulty);
+                
+                // 确保速度不同
+                while (speed1 === speed2) {
+                    speed2 = getRandomNumber(minSpeed, maxSpeed, difficulty);
+                }
+                
+                const faster = Math.max(speed1, speed2);
+                const slower = Math.min(speed1, speed2);
+                const ratio = (faster / slower).toFixed(1);
+                
+                const variant = Math.floor(Math.random() * 3);
+                let questionText, answerText, explanationText;
+                
+                switch(variant) {
+                    case 0:
+                        questionText = `A车的速度是${speed1}千米/小时，B车的速度是${speed2}千米/小时。A车的速度是B车的多少倍？`;
+                        answerText = `${ratio} 倍`;
+                        explanationText = `计算：${faster} ÷ ${slower} = ${ratio} 倍`;
+                        break;
+                    case 1:
+                        const time = getRandomNumber(1, 5, difficulty);
+                        const distance1 = speed1 * time;
+                        const distance2 = speed2 * time;
+                        questionText = `两辆汽车同时同向行驶${time}小时，快车比慢车多行驶多少千米？已知两车速度分别为${speed1}千米/小时和${speed2}千米/小时。`;
+                        answerText = `${Math.abs(distance1 - distance2)} 千米`;
+                        explanationText = `快车行驶距离：${Math.max(speed1, speed2)} × ${time} = ${Math.max(distance1, distance2)} 千米<br>
+                                          慢车行驶距离：${Math.min(speed1, speed2)} × ${time} = ${Math.min(distance1, distance2)} 千米<br>
+                                          差值：${Math.abs(distance1 - distance2)} 千米`;
+                        break;
+                    case 2:
+                        const distance = getRandomNumber(minSpeed * 1, maxSpeed * 3, difficulty);
+                        const timeFast = distance / faster;
+                        const timeSlow = distance / slower;
+                        const timeDiff = (timeSlow - timeFast).toFixed(1);
+                        questionText = `从甲地到乙地的距离是${distance}千米。如果以${slower}千米/小时的速度行驶，比以${faster}千米/小时的速度行驶多用多少小时？`;
+                        answerText = `${timeDiff} 小时`;
+                        explanationText = `慢速用时：${distance} ÷ ${slower} = ${timeSlow.toFixed(1)} 小时<br>
+                                           快速用时：${distance} ÷ ${faster} = ${timeFast.toFixed(1)} 小时<br>
+                                           差值：${timeSlow.toFixed(1)} - ${timeFast.toFixed(1)} = ${timeDiff} 小时`;
+                        break;
+                }
+                
+                return {
+                    question: questionText,
+                    answer: answerText,
+                    explanation: explanationText
+                };
+            }
+            
+            function getRandomNumber(min, max, difficulty) {
+                let number;
+                if (difficulty === 'hard' && Math.random() > 0.7) {
+                    // 困难模式下30%概率生成小数
+                    number = Math.random() * (max - min) + min;
+                    // 保留1位小数
+                    return Math.round(number * 10) / 10;
+                } else {
+                    return Math.floor(Math.random() * (max - min + 1)) + min;
+                }
+            }
+        });
+    </script>
+</body>
+</html>
