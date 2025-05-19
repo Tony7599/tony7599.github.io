@@ -325,10 +325,10 @@
                     questionText = `猎豹发现${distance}米外的羚羊后立即以${Math.max(speedA, speedB)}千米/小时的速度追赶，羚羊以${Math.min(speedA, speedB)}千米/小时的速度逃跑。猎豹能追上羚羊吗？如果能，需要多少小时？`;
                     if (speedA > speedB) {
                         answerText = `能，需要 ${chaseTime.toFixed(1)} 小时`;
-                        explanationText = `猎豹速度(${speedA} km/h) > 羚羊速度(${speedB} km/h)，可以追上。<br>
+                        explanationText = `猎豹速度({Math.max(speedA, speedB)} km/h) > 羚羊速度(${speedB} km/h)，可以追上。<br>
                                           追及时间：${distance/1000} ÷ (${speedA} - ${speedB}) = ${chaseTime.toFixed(1)} 小时`;
                     } else {
-                        answerText = `不能，因为猎豹速度(${speedA} km/h) ≤ 羚羊速度(${speedB} km/h)`;
+                        answerText = `不能，因为猎豹速度(${Math.max(speedA, speedB)} km/h) ≤ 羚羊速度(${Math.min(speedA, speedB)}} km/h)`;
                         explanationText = `只有当追赶者速度大于逃跑者速度时才能追上。`;
                     }
                 }
