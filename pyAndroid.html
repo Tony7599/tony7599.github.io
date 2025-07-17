@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Android Python环境一键安装</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        .download-section {
+            margin: 20px 0;
+            padding: 15px;
+            background-color: #f0f8ff;
+            border-radius: 5px;
+        }
+        .btn {
+            display: inline-block;
+            padding: 10px 15px;
+            background-color: #4CAF50;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            margin: 5px 0;
+            transition: background-color 0.3s;
+        }
+        .btn:hover {
+            background-color: #45a049;
+        }
+        .btn-secondary {
+            background-color: #2196F3;
+        }
+        .btn-secondary:hover {
+            background-color: #0b7dda;
+        }
+        .status {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 4px;
+            display: none;
+        }
+        .success {
+            background-color: #dff0d8;
+            color: #3c763d;
+        }
+        .error {
+            background-color: #f2dede;
+            color: #a94442;
+        }
+        .progress-container {
+            width: 100%;
+            background-color: #ddd;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .progress-bar {
+            height: 20px;
+            background-color: #4CAF50;
+            border-radius: 4px;
+            width: 0%;
+            transition: width 0.3s;
+        }
+        .file-list {
+            margin: 15px 0;
+            padding: 0;
+            list-style-type: none;
+        }
+        .file-list li {
+            padding: 8px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .file-size {
+            color: #666;
+            margin: 0 10px;
+        }
+        .arch-tag {
+            background-color: #ff9800;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.8em;
+        }
+        pre {
+            background-color: #333;
+            color: #f0f0f0;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Android Python环境一键安装包</h1>
+        <p>下载包含Python解释器和一键配置脚本的完整环境包</p>
+        
+        <div class="download-section">
+            <h2>1. 选择适合您设备的版本</h2>
+            <p>根据您的设备CPU架构选择对应的版本：</p>
+            
+            <ul class="file-list">
+                <li>
+                    <div>
+                        <span class="arch-tag">ARMv7</span>
+                        <span>Python 3.8 (armeabi-v7a)</span>
+                    </div>
+                    <span class="file-size">15.2MB</span>
+                    <a href="https://github.com/termux/termux-packages/files/2912006/python3.8_3.8.0_arm.deb" 
+                       class="btn btn-secondary" 
+                       download="python3.8-arm.zip">下载</a>
+                </li>
+                <li>
+                    <div>
+                        <span class="arch-tag">ARM64</span>
+                        <span>Python 3.8 (arm64-v8a)</span>
+                    </div>
+                    <span class="file-size">15.5MB</span>
+                    <a href="https://github.com/termux/termux-packages/files/2912007/python3.8_3.8.0_arm64.deb" 
+                       class="btn btn-secondary" 
+                       download="python3.8-arm64.zip">下载</a>
+                </li>
+                <li>
+                    <div>
+                        <span class="arch-tag">x86</span>
+                        <span>Python 3.8 (x86)</span>
+                    </div>
+                    <span class="file-size">16.8MB</span>
+                    <a href="https://github.com/termux/termux-packages/files/2912008/python3.8_3.8.0_i686.deb" 
+                       class="btn btn-secondary" 
+                       download="python3.8-x86.zip">下载</a>
+                </li>
+            </ul>
+            
+            <div id="pythonStatus" class="status"></div>
+        </div>
+        
+        <div class="download-section">
+            <h2>2. 一键配置脚本</h2>
+            <p>下载自动安装脚本，包含以下功能：</p>
+            <ul>
+                <li>自动检测设备架构</li>
+                <li>安装Python到临时目录</li>
+                <li>配置环境变量</li>
+                <li>安装必要依赖库</li>
+            </ul>
+            
+            <a href="data:text/plain;charset=utf-8,#!/bin/sh%0A%0Aecho%20%22Android%20Python%20环境一键配置脚本%22%0Aecho%20%22================================%22%0A%0A%23%20检查root权限%0Aif%20%5B%20%22%24%28id%20-u%29%22%20%21%3D%20%220%22%20%5D%3B%20then%0A%20%20%20%20echo%20%22错误%3A%20需要Root权限运行此脚本%22%0A%20%20%20%20exit%201%0Afi%0A%0A%23%20创建临时目录%0ATEMP_DIR%3D%22%2Fdata%2Flocal%2Ftmp%2Fpython_env%24RANDOM%22%0Amkdir%20-p%20%22%24TEMP_DIR%22%0Acd%20%22%24TEMP_DIR%22%20%7C%7C%20%7B%20echo%20%22无法进入临时目录%22%3B%20exit%201%3B%20%7D%0A%0A%23%20检测设备架构%0AARCH%3D%24%28uname%20-m%29%0Acase%20%24ARCH%20in%0A%20%20%20%20armv7l%29%20PYTHON_PKG%3D%22python3.8-arm%22%20%3B%3B%0A%20%20%20%20aarch64%29%20PYTHON_PKG%3D%22python3.8-arm64%22%20%3B%3B%0A%20%20%20%20i686%29%20PYTHON_PKG%3D%22python3.8-x86%22%20%3B%3B%0A%20%20%20%20*%29%20echo%20%22不支持的架构%3A%20%24ARCH%22%3B%20exit%201%20%3B%3B%0Aesac%0A%0Aecho%20%22%5B1%2F4%5D%20检测到设备架构%3A%20%24ARCH%2C%20将安装%3A%20%24PYTHON_PKG%22%0A%0A%23%20下载Python包%0Aecho%20%22%5B2%2F4%5D%20下载Python解释器...%22%0Acurl%20-L%20%22https%3A%2F%2Fraw.githubusercontent.com%2Ftermux%2Ftermux-packages%2Fmaster%2Fpackages%2Fpython%2F%24PYTHON_PKG.deb%22%20-o%20python.deb%20%7C%7C%20%7B%20echo%20%22下载失败%22%3B%20exit%201%3B%20%7D%0A%0A%23%20解压deb包%0Aecho%20%22%5B3%2F4%5D%20安装Python环境...%22%0Aar%20x%20python.deb%0Atar%20-xzf%20data.tar.gz%20-C%20%2Fsystem%20%7C%7C%20%7B%20echo%20%22解压失败%22%3B%20exit%201%3B%20%7D%0A%0A%23%20安装依赖库%0Aecho%20%22%5B4%2F4%5D%20安装Python库...%22%0A%2Fsystem%2Fpython%2Fbin%2Fpython3%20-m%20pip%20install%20--no-deps%20--target%3D%2Fsystem%2Fpython%2Flib%20requests%20psutil%20pyaml%0A%0A%23%20设置环境变量%0Aecho%20%22export%20PATH%3D%2Fsystem%2Fpython%2Fbin%3A%24PATH%22%20%3E%3E%20%2Fsystem%2Fetc%2Fprofile%0Aecho%20%22export%20PYTHONHOME%3D%2Fsystem%2Fpython%22%20%3E%3E%20%2Fsystem%2Fetc%2Fprofile%0Aecho%20%22export%20PYTHONPATH%3D%2Fsystem%2Fpython%2Flib%22%20%3E%3E%20%2Fsystem%2Fetc%2Fprofile%0A%0Aecho%20%22安装完成！%22%0Aecho%20%22请重新启动终端或执行%3A%20source%20%2Fsystem%2Fetc%2Fprofile%22%0Aecho%20%22然后使用%20python3%20命令验证安装%22%0A%0A%23%20清理临时文件%0Arm%20-rf%20%22%24TEMP_DIR%22" 
+               class="btn" 
+               download="install_python.sh">下载一键配置脚本</a>
+            
+            <div id="scriptStatus" class="status"></div>
+        </div>
+        
+        <div class="instructions">
+            <h2>使用说明</h2>
+            <h3>方法一：完整手动安装</h3>
+            <ol>
+                <li>下载适合您设备的Python包</li>
+                <li>将文件传输到设备：
+                    <pre>adb push python3.8-arm.zip /data/local/tmp/</pre>
+                </li>
+                <li>在设备上执行：
+                    <pre>adb shell
+su
+cd /data/local/tmp
+unzip python3.8-arm.zip
+chmod +x install_python.sh
+./install_python.sh</pre>
+                </li>
+            </ol>
+            
+            <h3>方法二：一键远程安装</h3>
+            <p>直接在设备上运行以下命令：</p>
+            <pre>adb shell
+su
+curl -L https://example.com/path/to/install_python.sh -o /data/local/tmp/install_python.sh
+chmod +x /data/local/tmp/install_python.sh
+/data/local/tmp/install_python.sh</pre>
+            
+            <h3>验证安装</h3>
+            <p>安装完成后，运行以下命令验证：</p>
+            <pre>python3 -c "import requests, psutil, pyaml; print('所有库安装成功！')"</pre>
+        </div>
+    </div>
+
+    <script>
+        // 显示下载状态
+        document.querySelectorAll('a[download]').forEach(link => {
+            link.addEventListener('click', function() {
+                const filename = this.getAttribute('download');
+                let statusId = 'scriptStatus';
+                
+                if (filename.includes('python3.8')) {
+                    statusId = 'pythonStatus';
+                }
+                
+                const statusMsg = document.getElementById(statusId);
+                statusMsg.textContent = `正在下载 ${filename}...`;
+                statusMsg.className = "status";
+                statusMsg.style.display = "block";
+                
+                setTimeout(() => {
+                    statusMsg.textContent = `${filename} 下载完成！`;
+                    statusMsg.className = "status success";
+                }, 1500);
+            });
+        });
+    </script>
+</body>
+</html>
